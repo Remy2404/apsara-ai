@@ -40,7 +40,7 @@ export const MessageInput = ({
   const animatedHeight = useRef(new Animated.Value(50)).current;
 
   // Expand input when typing longer messages
-  const handleContentSizeChange = (event) => {
+  const handleContentSizeChange = (event: {nativeEvent: {contentSize: {height: number}}}) => {
     const { height } = event.nativeEvent.contentSize;
     const newHeight = Math.min(Math.max(50, height), 120);
     
@@ -51,6 +51,17 @@ export const MessageInput = ({
     }).start();
   };
 
+  // Handle image paste from clipboard
+  const handleImagePaste = (file: File) => {
+    // This would normally process the pasted image file
+    // For now, we'll just log it as this functionality would be implemented
+    // in a platform-specific way for React Native
+    console.log('Image pasted:', file.name);
+    // Here you would typically:
+    // 1. Convert the file to a format React Native can use
+    // 2. Add it to attachments using onAttachmentPress or similar
+  };
+  
   const handlePaste = (event: ClipboardEvent) => {
     const items = event.clipboardData?.items;
     if (!items) return;

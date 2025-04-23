@@ -103,4 +103,5 @@ models/
 # System specific
 .DS_Store
 Thumbs.db
-desktop.ini
+desktop.ini'
+.github\copilot-instructions.md

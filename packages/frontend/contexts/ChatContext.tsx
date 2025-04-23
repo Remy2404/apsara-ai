@@ -24,6 +24,8 @@ interface Chat {
   messages: Message[];
   isPinned?: boolean;
   unreadCount?: number;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 interface ChatContextType {
@@ -47,8 +49,7 @@ const defaultChatContext: ChatContextType = {
     id: '', 
     title: '', 
     messages: [], 
-    createdAt: 0, 
-    updatedAt: 0 
+    timestamp: Date.now()
   }),
   loadChat: async () => {},
   sendMessage: async () => {},
@@ -57,7 +58,6 @@ const defaultChatContext: ChatContextType = {
   pinChat: async () => {},
   unpinChat: async () => {},
 };
-
 export const ChatContext = createContext<ChatContextType>(defaultChatContext);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -116,6 +116,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       id: Date.now().toString(),
       title: title || 'New Chat',
       messages: [],
+      timestamp: Date.now(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -173,7 +174,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           return {
             ...chat,
             messages: chat.messages.map(msg => 
-              msg.id === newMessage.id ? { ...msg, status: 'sent' } : msg
+              msg.id === newMessage.id ? { ...msg, status: 'sent' as const } : msg
             ),
           };
         }
@@ -187,7 +188,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         text: `This is an automated response to your message: "${text}"`,
         isUser: false,
         timestamp: Date.now() + 1000,
-        status: 'sent',
+        status: 'sent' as const,
       };
 
       setChats(prevChats => 
@@ -210,8 +211,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           setCurrentChat(updatedCurrentChat);
         }
       }
-    }, 1000);
-  };
+    }, 1000);  };
 
   // Delete a chat
   const deleteChat = async (chatId: string): Promise<void> => {

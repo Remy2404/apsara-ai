@@ -1,0 +1,20 @@
+{
+  "name": "@apsara-ai/common",
+  "version": "0.1.0",
+  "description": "Shared code between frontend and backend for Apsara AI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}
