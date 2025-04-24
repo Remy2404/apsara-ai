@@ -1,7 +1,7 @@
 # Comprehensive Apsara AI Full-Stack Project Structure
 
 "Apsara AI," a professional AI chatbot akin to ChatGPT using Expo Go for mobile development and Node.js/Express for the backend. This document outlines the project structure, including both frontend and backend components, ensuring a clean and maintainable codebase.
-note : I use terminal bash to run the project  
+note : I use terminal bash to run the project
 
 # Project Structure Overview
 
@@ -68,15 +68,15 @@ common/
 
 ```
 
-## Frontend Package (`/packages/frontend/`)
+## Frontend Package (`/packages/client/`)
 
 ```
-frontend/
+client/
 ├── app.json                     # Expo configuration
 ├── babel.config.js              # Babel configuration for transpilation
 ├── metro.config.js              # Metro bundler configuration
-├── package.json                 # Frontend dependencies
-├── tsconfig.json                # Frontend TypeScript configuration
+├── package.json
+├── tsconfig.json                configuration
 ├── eas.json                     # EAS Build configuration
 ├── global.css                   # Global CSS for NativeWind
 ├── app/                         # Expo Router app directory (replaces traditional src structure)
