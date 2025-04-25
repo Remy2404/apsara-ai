@@ -1,159 +1,227 @@
 import React from 'react';
-import { View, Text, ScrollView, Image, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import Button from '../../components/common/Button';
-
-interface ProfileOptionProps {
-  title: string;
-  icon: React.ReactNode;
-  onPress: () => void;
-  showArrow?: boolean;
-}
-
-const ProfileOption: React.FC<ProfileOptionProps> = ({ title, icon, onPress, showArrow = true }) => (
-  <Pressable 
-    onPress={onPress}
-    className="flex-row items-center justify-between py-3 border-b border-gray-700"
-  >
-    <View className="flex-row items-center">
-      <View className="w-8 justify-center items-center mr-3">
-        {icon}
-      </View>
-      <Text className="text-white text-base">{title}</Text>
-    </View>
-    
-    {showArrow && (
-      <Ionicons name="chevron-forward" size={20} color="#a1a1aa" />
-    )}
-  </Pressable>
-);
+import { useRouter } from 'expo-router';
+import { useProfileContext } from '../../contexts/ProfileContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { profile } = useProfileContext();
+  const { signOut } = useAuthContext();
   
-  return (
-    <SafeAreaView className="flex-1 bg-secondary-900">
-      {/* Header */}
-      <View className="px-6 pt-4 pb-6 bg-secondary-800 border-b border-gray-700">
-        <View className="flex-row items-center justify-between mb-4">
-          <Pressable 
-            onPress={() => router.back()}
-            className="p-2 -ml-2"
-            hitSlop={8}
-          >
-            <Ionicons name="arrow-back" size={24} color="#f9fafb" />
-          </Pressable>
-          
-          <Text className="text-xl font-medium text-white">Profile</Text>
-          
-          <Pressable 
-            onPress={() => router.push('/profile/edit')}
-            className="p-2 -mr-2"
-            hitSlop={8}
-          >
-            <Ionicons name="create-outline" size={22} color="#f9fafb" />
-          </Pressable>
-        </View>
-        
-        <View className="items-center">
-          <View className="rounded-full overflow-hidden border-2 border-primary mb-4">
-            <Image 
-              source={{ uri: 'https://i.pravatar.cc/150' }}
-              className="w-24 h-24"
-            />
-          </View>
-          
-          <Text className="text-white text-xl font-medium mb-1">John Doe</Text>
-          <Text className="text-gray-400 mb-4">john.doe@example.com</Text>
-          
-          <View className="flex-row w-full">
-            <Button 
-              title="Edit Profile" 
-              onPress={() => router.push('/profile/edit')}
-              variant="outline"
-              className="flex-1 mr-2"
-              size="sm"
-            />
-            <Button 
-              title="Subscription" 
-              onPress={() => console.log('Subscription')}
-              variant="primary"
-              className="flex-1 ml-2"
-              size="sm"
-            />
-          </View>
-        </View>
-      </View>
+  // Format date to readable string
+  const formatDate = (date: Date) => {
+        return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
-      {/* Content */}
-      <ScrollView className="flex-1 px-6 pt-6">
-        <Text className="text-lg font-medium text-white mb-4">Account</Text>
+  if (!profile) {
+    return (
+      <View className="flex-1 bg-white dark:bg-gray-900 items-center justify-center p-4">
+        <Text className="text-gray-500 dark:text-gray-400">
+          Profile not found. Please sign in again.
+        </Text>
+        <TouchableOpacity
+          className="mt-4 bg-blue-500 px-6 py-3 rounded-lg"
+          onPress={() => signOut()}
+        >
+          <Text className="text-white font-semibold">Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      <StatusBar style="auto" />
+      
+      <ScrollView className="flex-1">
+        {/* Profile Header */}
+        <View className="p-4 items-center border-b border-gray-200 dark:border-gray-800">
+          <View className="h-24 w-24 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden mb-4">
+            {profile.avatar ? (
+              <Image 
+                source={{ uri: profile.avatar }} 
+                className="h-full w-full" 
+              />
+            ) : (
+              <View className="h-full w-full items-center justify-center">
+                <Ionicons name="person" size={40} color="#9ca3af" />
+              </View>
+            )}
+          </View>
+          <Text className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+            {profile.name}
+          </Text>
+          <Text className="text-gray-500 dark:text-gray-400 mb-2">
+            @{profile.username}
+          </Text>
+          
+          {profile.bio && (
+            <Text className="text-gray-700 dark:text-gray-300 text-center mb-3">
+              {profile.bio}
+            </Text>
+          )}
+          
+          <View className="flex-row items-center mb-1">
+            {profile.location && (
+              <View className="flex-row items-center mr-4">
+                <Ionicons name="location" size={16} color="#9ca3af" />
+                <Text className="text-gray-500 dark:text-gray-400 ml-1">
+                  {profile.location}
+                </Text>
+              </View>
+            )}
+            
+            {profile.website && (
+              <View className="flex-row items-center">
+                <Ionicons name="globe" size={16} color="#9ca3af" />
+                <Text className="text-blue-500 ml-1">
+                  {profile.website.replace(/^https?:\/\//, '')}
+                </Text>
+              </View>
+            )}
+          </View>
+          
+          <Text className="text-gray-500 dark:text-gray-400 text-sm">
+            Member since {formatDate(profile.createdAt)}
+          </Text>
+          
+          <TouchableOpacity
+            className="mt-4 px-6 py-2 border border-gray-300 dark:border-gray-700 rounded-full"
+            onPress={() => router.push('/profile/edit')}
+          >
+            <Text className="text-gray-900 dark:text-white font-medium">
+              Edit Profile
+            </Text>
+          </TouchableOpacity>
+        </View>
         
-        <ProfileOption
-          title="Personal Information"
-          icon={<Ionicons name="person-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/profile/edit')}
-        />
+        {/* Account Section */}
+        <View className="p-4">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            Account
+          </Text>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/profile/edit')}
+          >
+            <Ionicons name="person-circle" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Personal Information
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/profile/password')}
+          >
+            <Ionicons name="lock-closed" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Change Password
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/settings')}
+          >
+            <Ionicons name="settings" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              App Settings
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/settings/privacy')}
+          >
+            <Ionicons name="shield-checkmark" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Privacy & Security
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3"
+            onPress={() => router.push('/settings/notifications')}
+          >
+            <Ionicons name="notifications" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Notifications
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+        </View>
         
-        <ProfileOption
-          title="Password & Security"
-          icon={<Ionicons name="shield-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/profile/password')}
-        />
+        {/* Support Section */}
+        <View className="p-4">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            Support
+          </Text>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/settings/support')}
+          >
+            <Ionicons name="help-buoy" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Help Center
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3 border-b border-gray-200 dark:border-gray-800"
+            onPress={() => router.push('/settings/about')}
+          >
+            <Ionicons name="information-circle" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              About Apsara AI
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center py-3"
+            onPress={() => console.log('Report a problem')}
+          >
+            <Ionicons name="flag" size={22} color="#3b82f6" />
+            <Text className="text-gray-800 dark:text-gray-200 ml-3 flex-1">
+              Report a Problem
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+          </TouchableOpacity>
+        </View>
         
-        <ProfileOption
-          title="Subscription"
-          icon={<Ionicons name="card-outline" size={22} color="#10a37f" />}
-          onPress={() => console.log('Subscription')}
-        />
-        
-        <ProfileOption
-          title="Notification Settings"
-          icon={<Ionicons name="notifications-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings/notifications')}
-        />
-        
-        <Text className="text-lg font-medium text-white mt-8 mb-4">App Settings</Text>
-        
-        <ProfileOption
-          title="Appearance"
-          icon={<Ionicons name="color-palette-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings/theme')}
-        />
-        
-        <ProfileOption
-          title="Language"
-          icon={<Ionicons name="language-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings')}
-        />
-        
-        <ProfileOption
-          title="Privacy"
-          icon={<Ionicons name="lock-closed-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings/privacy')}
-        />
-        
-        <ProfileOption
-          title="Help & Support"
-          icon={<Ionicons name="help-circle-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings/support')}
-        />
-        
-        <ProfileOption
-          title="About"
-          icon={<Ionicons name="information-circle-outline" size={22} color="#10a37f" />}
-          onPress={() => router.push('/settings/about')}
-        />
-        
-        <Button 
-          title="Sign Out" 
-          onPress={() => console.log('Sign out')}
-          variant="secondary"
-          className="mt-8 mb-6"
-        />
+        {/* Account Actions */}
+        <View className="p-4 mb-8">
+          <TouchableOpacity
+            className="flex-row items-center justify-center py-3 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3"
+            onPress={() => signOut()}
+          >
+            <Ionicons name="log-out" size={20} color="#ef4444" />
+            <Text className="text-red-500 ml-2">Sign Out</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-row items-center justify-center py-3"
+            onPress={() => console.log('Delete Account')}
+          >
+            <Text className="text-gray-500 dark:text-gray-400">Delete Account</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
