@@ -35,5 +35,8 @@
   "homepage": "https://github.com/Remy2404/apsara-ai#readme",
   "devDependencies": {
     "lerna": "^8.0.0"
+  },
+  "dependencies": {
+    "react-native-reanimated": "~3.16.1"
   }
 }
