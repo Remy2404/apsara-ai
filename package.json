@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/Remy2404/apsara-ai#readme",
   "devDependencies": {
+    "babel-plugin-module-resolver": "^5.0.2",
     "lerna": "^8.0.0"
   },
   "dependencies": {
