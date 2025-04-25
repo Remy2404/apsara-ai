@@ -1,7 +1,7 @@
 # Comprehensive Apsara AI Full-Stack Project Structure
 
 "Apsara AI," a professional AI chatbot akin to ChatGPT using Expo Go for mobile development and Node.js/Express for the backend. This document outlines the project structure, including both frontend and backend components, ensuring a clean and maintainable codebase.
-note : I use terminal bash to run the project
+note : I use terminal bash to run the project , Use tailwind css for the frontend or call MCP Magic UI for the frontend , project implemeted with Typesscript
 
 # Project Structure Overview
 
@@ -166,6 +166,7 @@ client/
 │   ├── AuthContext.tsx          # Authentication state and methods
 │   ├── ThemeContext.tsx         # Theme management
 │   ├── ChatContext.tsx          # Chat state and methods
+│   ├── ProfileContext.tsx       # User profile state and methods
 │   └── AIContext.tsx            # AI model settings
 ├── hooks/                       # Custom React hooks
 │   ├── useAuth.ts               # Authentication utilities
@@ -378,6 +379,7 @@ backend/
 - **AuthContext.tsx**: User authentication state management
 - **ThemeContext.tsx**: Theme preference and switching
 - **ChatContext.tsx**: Chat state and operations
+- **ProfileContext.tsx**: User profile state and methods
 - **AIContext.tsx**: AI settings and configuration
 
 ### Hooks Directory
