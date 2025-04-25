@@ -1,76 +1,70 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
     <LinearGradient
-      colors={['#f0d4ff', '#d5deff', '#ffcce6']}
-      start={{ x: 0.1, y: 0.1 }}
-      end={{ x: 0.9, y: 0.9 }}
+      colors={['#121212', '#1E1E1E', '#121212']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       className="flex-1"
     >
-      <StatusBar style="dark" />
-      
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-3xl font-bold text-center mb-16 mt-8">
-          Welcome to{'\n'}Apsara AI 👋
-        </Text>
-      </View>
-      
-      <View className="px-6 pb-10">
-        <TouchableOpacity 
-          className="bg-indigo-500 rounded-full py-4 mb-4"
-          onPress={() => router.push('/(auth)/login')}
-        >
-          <Text className="text-white text-center font-semibold text-base">
-            Log in
+      <StatusBar style="light" />
+      <SafeAreaView className="flex-1">
+        {/* Header with logo */}
+        <View className="flex-1 justify-center items-center px-6">
+          <View className="w-24 h-24 bg-primary-600/20 rounded-full items-center justify-center mb-8">
+            <Ionicons name="chatbubble" size={48} color="#10a37f" />
+          </View>
+          
+          <Text className="text-3xl font-bold text-white text-center mb-3">
+            Welcome to Apsara AI
           </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          className="bg-white rounded-full py-4 mb-6"
-          onPress={() => router.push('/(auth)/register')}
-        >
-          <Text className="text-black text-center font-semibold text-base">
-            Sign up
+          
+          <Text className="text-gray-400 text-center mb-8">
+            Your intelligent assistant for conversations, tasks, and creative ideas
           </Text>
-        </TouchableOpacity>
-        
-        <View className="flex-row items-center justify-center mb-6">
-          <Text className="text-gray-700 text-sm">or continue with</Text>
+          
+          {/* Replace missing image with a larger icon */}
+          <View className="w-64 h-64 items-center justify-center mb-8">
+            <Ionicons name="chatbubbles-outline" size={128} color="#10a37f" />
+          </View>
         </View>
         
-        <View className="flex-row justify-center space-x-4">
-          <TouchableOpacity className="w-12 h-12 bg-white rounded-full items-center justify-center">
-            <Image 
-              source={require('../../assets/images/google-logo.png')}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
+        {/* Bottom buttons section */}
+        <View className="px-6 pb-8">
+          <TouchableOpacity 
+            className="bg-primary-600 rounded-full py-4 mb-4"
+            onPress={() => router.push('/(auth)/login')}
+          >
+            <Text className="text-white text-center font-semibold text-base">
+              Sign In
+            </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="w-12 h-12 bg-white rounded-full items-center justify-center">
-            <Image 
-              source={require('../../assets/images/github-logo.png')}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
+          <TouchableOpacity 
+            className="bg-gray-800 border border-gray-600 rounded-full py-4 mb-8"
+            onPress={() => router.push('/(auth)/register')}
+          >
+            <Text className="text-white text-center font-semibold text-base">
+              Create Account
+            </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="w-12 h-12 bg-white rounded-full items-center justify-center">
-            <Image 
-              source={require('../../assets/images/facebook-logo.png')}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+          <View className="flex-row justify-center">
+            <View className="h-1 w-8 bg-primary-600 rounded-full mx-1" />
+            <View className="h-1 w-8 bg-gray-600 rounded-full mx-1" />
+            <View className="h-1 w-8 bg-gray-600 rounded-full mx-1" />
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </LinearGradient>
   );
 }

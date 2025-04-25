@@ -1,6 +1,6 @@
 import '../global.css';
 import { useEffect, useState } from 'react';
-import { Slot, useRouter } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
@@ -24,6 +24,7 @@ export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const router = useRouter();
+  const segments = useSegments();
   
   useEffect(() => {
     async function prepare() {
@@ -49,18 +50,24 @@ export default function RootLayout() {
     prepare();
   }, []);
 
-  // After app is ready, show our custom splash screen for a bit
+  // Handle navigation and splash screen separately from app readiness
+  useEffect(() => {
+    if (appIsReady && !showSplash) {
+      // Navigation is now safe since the component is rendered with a Slot
+      router.replace('/(onboarding)/welcome');
+    }
+  }, [appIsReady, showSplash, router]);
+
+  // Handle hiding splash screen separately
   useEffect(() => {
     if (appIsReady) {
       const timer = setTimeout(() => {
         setShowSplash(false);
-        // Navigate to welcome screen if needed
-        // router.replace('/(onboarding)/welcome');
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [appIsReady, router]);
+  }, [appIsReady]);
 
   if (!appIsReady || showSplash) {
     return <SplashScreen />;

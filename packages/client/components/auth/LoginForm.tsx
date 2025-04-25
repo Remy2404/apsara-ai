@@ -1,111 +1,126 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
-interface LoginFormProps {
-  onSuccess?: () => void;
-  onForgotPassword?: () => void;
-}
-
-export default function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
-  const router = useRouter();
-  const { signIn } = useAuthContext();
+export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      return;
+  const router = useRouter();
+  // We'll implement this hook later, for now just mock the login function
+  const { login } = useAuth ? useAuth() : { login: async () => true };
+
+  const validateForm = () => {
+    const newErrors: { email?: string; password?: string } = {};
+    
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
     }
     
-    setError(null);
-    setIsLoading(true);
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
     
     try {
-      await signIn(email, password);
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        // Default navigation if no success handler provided
-        router.replace('/(main)/home');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+      setIsLoading(true);
+      // In a real app, this would call your auth service
+      await login(email, password);
+      // Navigate to home screen on success
+      router.replace('/(main)/home');
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors({ 
+        email: 'Invalid email or password' 
+      });
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <View>
-      {error && (
-        <View className="bg-red-800/30 px-4 py-3 rounded-lg mb-4">
-          <Text className="text-red-400 text-sm">{error}</Text>
-        </View>
-      )}
-      
+      {/* Email Input */}
       <View className="mb-4">
         <Text className="text-gray-400 mb-2">Email</Text>
-        <TextInput
-          className="bg-secondary-800 h-12 px-4 rounded-lg text-white"
-          placeholder="example@email.com"
-          placeholderTextColor="#71717a"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          editable={!isLoading}
-        />
+        <View className="relative">
+          <TextInput
+            className={`bg-secondary-800 text-white px-4 py-3 rounded-lg ${errors.email ? 'border border-red-500' : ''}`}
+            placeholder="Your email address"
+            placeholderTextColor="#6b7280"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          {errors.email && (
+            <Text className="text-red-500 text-xs mt-1">{errors.email}</Text>
+          )}
+        </View>
       </View>
       
-      <View className="mb-6">
+      {/* Password Input */}
+      <View className="mb-4">
         <Text className="text-gray-400 mb-2">Password</Text>
-        <View className="flex-row bg-secondary-800 h-12 rounded-lg overflow-hidden">
+        <View className="relative">
           <TextInput
-            className="flex-1 px-4 text-white"
-            placeholder="Enter your password"
-            placeholderTextColor="#71717a"
+            className={`bg-secondary-800 text-white px-4 py-3 rounded-lg pr-10 ${errors.password ? 'border border-red-500' : ''}`}
+            placeholder="Your password"
+            placeholderTextColor="#6b7280"
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
-            editable={!isLoading}
           />
-          <TouchableOpacity 
-            className="px-4 items-center justify-center"
+          <TouchableOpacity
+            className="absolute right-3 top-3"
             onPress={() => setShowPassword(!showPassword)}
-            disabled={isLoading}
           >
-            <Ionicons 
-              name={showPassword ? "eye-off-outline" : "eye-outline"} 
-              size={20} 
-              color="#71717a" 
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color="#6b7280"
             />
           </TouchableOpacity>
+          {errors.password && (
+            <Text className="text-red-500 text-xs mt-1">{errors.password}</Text>
+          )}
         </View>
       </View>
       
+      {/* Forgot Password */}
       <TouchableOpacity 
-        className="self-end mb-6"
-        onPress={onForgotPassword || (() => router.push('/(auth)/forgot-password'))}
-        disabled={isLoading}
+        className="self-end mb-6" 
+        onPress={() => router.push('/(auth)/forgot-password')}
       >
-        <Text className="text-primary-500 text-sm">Forgot Password?</Text>
+        <Text className="text-primary-500">Forgot password?</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity 
-        className={`py-4 rounded-full mb-4 ${isLoading ? 'bg-primary-800' : 'bg-primary-600'}`}
-        onPress={handleLogin}
+      {/* Login Button */}
+      <TouchableOpacity
+        className={`rounded-lg py-4 px-6 ${isLoading ? 'bg-primary-700' : 'bg-primary-600'}`}
+        onPress={handleSubmit}
         disabled={isLoading}
       >
-        <Text className="text-white font-semibold text-center">
-          {isLoading ? 'Logging in...' : 'Sign In'}
-        </Text>
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text className="text-white font-semibold text-center">Login</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
