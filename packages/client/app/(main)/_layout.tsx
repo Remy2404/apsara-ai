@@ -39,7 +39,7 @@ export default function MainLayout() {
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.name}
-              onPress={() => router.push(tab.path)}
+              onPress={() => router.push(tab.path as any)}
               className="flex-1 items-center py-3"
             >
               <Ionicons
