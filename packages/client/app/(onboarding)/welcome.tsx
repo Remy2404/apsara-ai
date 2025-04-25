@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -32,10 +32,11 @@ export default function WelcomeScreen() {
             Your intelligent assistant for conversations, tasks, and creative ideas
           </Text>
           
-          {/* Replace missing image with a larger icon */}
-          <View className="w-64 h-64 items-center justify-center mb-8">
-            <Ionicons name="chatbubbles-outline" size={128} color="#10a37f" />
-          </View>
+          {/* Responsive image */}
+          <Image 
+            source={require('../../assets/images/welcome-illustration.png')} 
+            style={{ width: '100%', height: 200, resizeMode: 'contain', marginBottom: 20 }} 
+          />
         </View>
         
         {/* Bottom buttons section */}
