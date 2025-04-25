@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.apsara.ai"
     },
     "web": {
       "bundler": "metro",
@@ -26,6 +27,7 @@
       "expo-router",
       [
         "expo-splash-screen",
+        
         {
           "image": "./assets/images/logo.png",
           "imageWidth": 200,
