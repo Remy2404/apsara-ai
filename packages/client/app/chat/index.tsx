@@ -1,134 +1,98 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import ChatBubble from '../../components/chat/ChatBubble';
-import MessageInput from '../../components/chat/MessageInput';
-import TypingIndicator from '../../components/chat/TypingIndicator';
-import ChatHeader from '../../components/chat/ChatHeader';
-
-// Mock message type
-interface Message {
-  id: string;
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+import { Ionicons } from '@expo/vector-icons';
+import { useChatContext } from '../../contexts/ChatContext';
+import { useRouter } from 'expo-router';
 
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hello! I am Apsara AI, your intelligent assistant. How can I help you today?',
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
+  const { conversations, setCurrentConversation } = useChatContext();
+  const router = useRouter();
 
-  useEffect(() => {
-    // Scroll to bottom when messages change
-    if (flatListRef.current && messages.length > 0) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
-  }, [messages]);
-
-  const handleSendMessage = (text: string) => {
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString() + '-user',
-      text,
-      isUser: true,
-      timestamp: new Date(),
-    };
-    
-    setMessages([...messages, userMessage]);
-    
-    // Simulate AI thinking
-    setIsTyping(true);
-    
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      const aiResponse: Message = {
-        id: Date.now().toString() + '-ai',
-        text: getAIResponse(text),
-        isUser: false,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
-    }, Math.random() * 2000 + 1000); // Random delay between 1-3 seconds
+  const handleSelectConversation = (id: string) => {
+    setCurrentConversation(id);
+    router.push(`/chat/${id}`);
   };
 
-  // Simple mock AI response function
-  const getAIResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      return "Hello there! How can I assist you today?";
-    } else if (lowerMessage.includes('how are you')) {
-      return "I'm just a digital assistant, but I'm functioning well! How can I help you?";
-    } else if (lowerMessage.includes('name')) {
-      return "I'm Apsara AI, your intelligent assistant. I'm designed to help answer questions and assist with various tasks.";
-    } else if (lowerMessage.includes('thank')) {
-      return "You're welcome! Feel free to ask if you need anything else.";
-    } else if (lowerMessage.includes('weather')) {
-      return "I don't have access to real-time weather data in this demo. In a full implementation, I could check the weather for you using a weather API.";
+  const formatDate = (date: Date) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.getTime() > today.getTime()) {
+      // Today, return time
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (date.getTime() > yesterday.getTime()) {
+      // Yesterday
+      return 'Yesterday';
+    } else if (date.getFullYear() === now.getFullYear()) {
+      // This year, return month and day
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     } else {
-      return "That's an interesting question. In a complete implementation, I would have access to more knowledge to provide you with a detailed answer.";
+      // Different year, return date with year
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
     }
-  };
-
-  const handleCopyText = (text: string) => {
-    // In a real app, this would copy to clipboard
-    console.log('Copied to clipboard:', text);
-    // Show toast notification
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-secondary-900">
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
-      >
-        {/* Header */}
-        <ChatHeader 
-          title="Apsara AI" 
-          subtitle="AI Assistant" 
-        />
-        
-        {/* Chat messages */}
+    <View className="flex-1 bg-white dark:bg-gray-900">
+      <StatusBar style="auto" />
+
+      {conversations.length > 0 ? (
         <FlatList
-          ref={flatListRef}
-          data={messages}
+          data={conversations}
           keyExtractor={(item) => item.id}
-          className="flex-1 px-4 pt-4"
           renderItem={({ item }) => (
-            <ChatBubble
-              message={item.text}
-              isUser={item.isUser}
-              timestamp={item.timestamp}
-              onCopyText={() => handleCopyText(item.text)}
-            />
-          )}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          ListFooterComponent={() => (
-            isTyping ? <TypingIndicator isVisible={true} /> : null
+            <TouchableOpacity
+              className="flex-row p-4 border-b border-gray-200 dark:border-gray-800"
+              onPress={() => handleSelectConversation(item.id)}
+            >
+              <View className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 items-center justify-center mr-3">
+                <Ionicons name="chatbubble-ellipses" size={24} color="#3b82f6" />
+              </View>
+              <View className="flex-1 justify-center">
+                <View className="flex-row justify-between items-center mb-1">
+                  <Text className="font-semibold text-gray-900 dark:text-white">{item.title}</Text>
+                  <Text className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(item.lastMessageTime)}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between items-center">
+                  <Text 
+                    className="text-gray-500 dark:text-gray-400 text-sm flex-1"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.lastMessagePreview}
+                  </Text>
+                  {item.unreadCount > 0 && (
+                    <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center ml-2">
+                      <Text className="text-white text-xs">{item.unreadCount}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
           )}
         />
-        
-        {/* Message input */}
-        <MessageInput
-          onSend={handleSendMessage}
-          onVoicePress={() => console.log('Voice input')}
-          onAttachmentPress={() => console.log('Attachment')}
-          placeholder="Message Apsara AI..."
-        />
-      </KeyboardAvoidingView>
-      <StatusBar style="light" />
-    </SafeAreaView>
+      ) : (
+        <View className="flex-1 items-center justify-center p-4">
+          <Ionicons name="chatbubble-ellipses-outline" size={64} color="#9CA3AF" />
+          <Text className="text-xl font-semibold text-gray-900 dark:text-white mt-4">No Conversations Yet</Text>
+          <Text className="text-gray-500 dark:text-gray-400 text-center mt-2">
+            Start a new conversation with Apsara AI to get help with your tasks.
+          </Text>
+        </View>
+      )}
+
+      {/* New Chat Button */}
+      <TouchableOpacity
+        className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+        onPress={() => router.push('/ai')}
+      >
+        <Ionicons name="add" size={30} color="white" />
+      </TouchableOpacity>
+    </View>
   );
 }

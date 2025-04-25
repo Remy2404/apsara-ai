@@ -1,12 +1,15 @@
 import React from 'react';
+import { View, StatusBar } from 'react-native';
 import { Slot } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function AuthLayout() {
   return (
-    <>
-      <StatusBar style="light" />
-      <Slot />
-    </>
+    <SafeAreaProvider>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <View className="flex-1 bg-secondary-900">
+        <Slot />
+      </View>
+    </SafeAreaProvider>
   );
 }
