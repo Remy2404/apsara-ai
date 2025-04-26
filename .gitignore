@@ -103,6 +103,8 @@ models/
 # System specific
 .DS_Store
 Thumbs.db
-desktop.ini'
-.github\copilot-instructions.md
-.github\copilot-instructions.md
+desktop.ini
+
+# Project specific
+.github/copilot-instructions.md
+copilot-instructions.md
